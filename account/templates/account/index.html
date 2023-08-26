@@ -1,0 +1,114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}" />
+    <script src="{% static 'js/popper.min.js' %}"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.js' %}"></script>
+    <style>
+        body {
+            background-color: #c8d4e8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+    <marquee behavior="scroll" direction="left" style="color:red">API endpoint: http://localhost:8000/account/register/</marquee>
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-sm-5">
+
+                <h2>User Registration</h2>
+                <div class="alert alert-success mt-3" id="success-message" style="display: none;">User registered successfully.</div>
+                <form id="registration-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                        <div class="invalid-feedback" id="username-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="invalid-feedback" id="email-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fullname" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="fullname" name="full_name" required>
+                        <div class="invalid-feedback" id="fullname-error"></div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="write No with contry code" class="form-label">Phone Number</label>
+                      <input type="tel" class="form-control" id="mobileno" name="phone_number" placeholder="EX +919191919191" required>
+                      
+                      <div class="invalid-feedback" id="phone_number-error"></div>
+                  </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <small>write number with country code</small>
+                        <div class="invalid-feedback" id="password-error"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        
+                        <div class="invalid-feedback" id="confirm_password-error"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+                
+                {% comment %} <div class="alert alert-danger mt-3" id="error-message" style="display: none;">An error occurred. Please try again.</div> {% endcomment %}
+            </div>
+            <div class="col-3"></div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#registration-form').submit(function (event) {
+                event.preventDefault();
+
+                var password = $('#password').val();
+                var confirmPassword = $('#confirm_password').val();
+
+                if (password !== confirmPassword) {
+                    $('#password').addClass('is-invalid');
+                    $('#confirm_password').addClass('is-invalid');
+                    return;
+                }
+
+                $('#password').removeClass('is-invalid');
+                $('#confirm_password').removeClass('is-invalid');
+
+                var formData = $(this).serialize();
+                $.ajax({
+                    url: '/register/', 
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        $('#success-message').show();
+                        $('#error-message').hide();
+                        console.log(response);
+                    },
+                    error: function (error) {
+                        $('#error-message').show();
+                        $('#success-message').hide();
+                        console.error(error);
+
+                        var errors = error.responseJSON;
+                        for (var field in errors) {
+                            var errorMessage = errors[field].join(' ');
+                            $('#' + field).addClass('is-invalid');
+                            $('#' + field + '-error').text(errorMessage).show();
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
